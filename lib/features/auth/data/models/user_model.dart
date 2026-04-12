@@ -9,7 +9,7 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      token: json['token'],
+      token: json['accessToken'],
     );
   }
 }

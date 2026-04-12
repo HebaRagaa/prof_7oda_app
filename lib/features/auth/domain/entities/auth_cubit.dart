@@ -16,10 +16,15 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
 
     try {
+      print("📤 Sending login request...");
+
       final user = await loginUseCase(phone, password);
+      print("✅ Response: $user");
 
       emit(AuthSuccess(user));
     } catch (e) {
+      print("❌ Error: $e");
+
       emit(AuthError(e.toString()));
     }
   }

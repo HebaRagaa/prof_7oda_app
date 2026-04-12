@@ -9,11 +9,11 @@ class AuthRemoteDataSource {
 
   AuthRemoteDataSource(this.dio);
 
-  Future<Map<String, dynamic>> login(String phone, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     final response = await dio.post(
-      '/login',
+      '/auth/login',
       data: {
-        "phone": phone,
+        "username": username,
         "password": password,
       },
     );

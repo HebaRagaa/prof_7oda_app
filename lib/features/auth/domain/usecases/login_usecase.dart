@@ -11,8 +11,8 @@ class LoginUseCase {
 
   LoginUseCase(this.repository);
 
-  Future<UserEntity> call(String phone, String password) {
-    return repository.login(phone, password);
+  Future<UserEntity> call(String username, String password) {
+    return repository.login(username, password);
   }
 }
 
