@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prof_7oda_app/core/network/dio_factory.dart';
@@ -11,12 +10,13 @@ import 'package:prof_7oda_app/features/auth/presentation/screens/login_screen.da
 import 'package:prof_7oda_app/features/products/data/data_source/product_remote_data_source.dart';
 import 'package:prof_7oda_app/features/products/data/repository/product_repository_impl.dart';
 import 'package:prof_7oda_app/features/products/domain/usecases/get_products_usecase.dart';
+import 'package:prof_7oda_app/features/products/presentation/cubit/favorites_cubit.dart';
 import 'package:prof_7oda_app/features/products/presentation/cubit/products_cubit.dart';
 import 'package:prof_7oda_app/features/products/presentation/screens/products_screen.dart';
 
 void main() {
   // 🔥 1. نعمل Dio
-  final dio = DioFactory.getDio();  // 🔥 2. نعمل DataSource
+  final dio = DioFactory.getDio(); // 🔥 2. نعمل DataSource
   final remoteDataSource = AuthRemoteDataSource(dio);
   // 🔥 3. نعمل Repository
   final repository = AuthRepositoryImpl(remoteDataSource);
@@ -29,16 +29,17 @@ void main() {
 
   runApp(MyApp(
       loginUseCase: loginUseCase,
-      getProductsUseCase:getProductsUseCase
+      getProductsUseCase: getProductsUseCase
   ));
- // runApp(const MyApp());
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   final LoginUseCase loginUseCase;
-final GetProductsUseCase getProductsUseCase;
+  final GetProductsUseCase getProductsUseCase;
 
-  const MyApp({super.key, required this.loginUseCase, required this.getProductsUseCase});
+  const MyApp(
+      {super.key, required this.loginUseCase, required this.getProductsUseCase});
 
   @override
   Widget build(BuildContext context) {
@@ -47,23 +48,26 @@ final GetProductsUseCase getProductsUseCase;
       theme: AppTheme.lightTheme,
 
       // 👇 هنا بقى المهم
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) => AuthCubit(loginUseCase),
-          ),
-         // BlocProvider(
-          //  create: (_) => ProductsCubit(getProductsUseCase),
-         // ),
-        ],
-          child: LoginScreen(),
+      home: BlocProvider(
+        create: (_) => AuthCubit(loginUseCase),
+        child: LoginScreen(),
       ),
 
       routes: {
-        '/products': (context) => BlocProvider(
-          create: (_) => ProductsCubit(getProductsUseCase)..getProducts(),
-          child: ProductsScreen(),
-        ),
+        '/products': (context) =>
+            MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                  ProductsCubit(getProductsUseCase)
+                    ..getProducts(),
+                ),
+                BlocProvider(
+                  create: (_) => FavoritesCubit(),
+                ),
+              ],
+              child: ProductsScreen(),
+            ),
       },
     );
   }
