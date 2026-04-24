@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prof_7oda_app/features/cart/presentation/cart_cubit.dart';
 import 'package:prof_7oda_app/features/products/presentation/cubit/favorites_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -112,7 +113,13 @@ class ProductDetailsScreen extends StatelessWidget {
                   // 🛒 زرار
                   CustomButton(
                     text: "Add To Cart",
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<CartCubit>().addToCart(product);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Added to cart")),
+                      );
+                    },
                   ),
                 ],
               ),
