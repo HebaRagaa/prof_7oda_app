@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prof_7oda_app/features/cart/presentation/cart_cubit.dart';
@@ -9,21 +7,31 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../domain/entities/product_entity.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   final ProductEntity product;
 
   const ProductDetailsScreen({super.key, required this.product});
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+
+  // 🔥 حالة مؤقتة للزرار (هل المنتج اتضاف؟)
+  bool isAdded = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
+
           // 🔥 الصورة + back + favorite
           Stack(
             children: [
               Image.network(
-                product.image,
+                widget.product.image,
                 height: 300,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -46,14 +54,17 @@ class ProductDetailsScreen extends StatelessWidget {
                 right: 16,
                 child: BlocBuilder<FavoritesCubit, Set<int>>(
                   builder: (context, favorites) {
-                    final isFav = favorites.contains(product.id);
+
+                    // ❤️ هل المنتج مفضل؟
+                    final isFav = favorites.contains(widget.product.id);
 
                     return GestureDetector(
                       onTap: () {
-                        context.read<FavoritesCubit>().toggleFavorite(product.id);
+                        context.read<FavoritesCubit>().toggleFavorite(widget.product.id);
                       },
                       child: CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.9),                        child: Icon(
+                        backgroundColor: Colors.white.withOpacity(0.9),
+                        child: Icon(
                           isFav ? Icons.favorite : Icons.favorite_border,
                           color: Colors.red,
                         ),
@@ -61,7 +72,6 @@ class ProductDetailsScreen extends StatelessWidget {
                     );
                   },
                 ),
-
               ),
             ],
           ),
@@ -73,20 +83,21 @@ class ProductDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 📛 الاسم
+
+                  // 📛 اسم المنتج
                   Text(
-                    product.title,
+                    widget.product.title,
                     style: AppTextStyles.heading,
                   ),
 
                   const SizedBox(height: 8),
 
-                  // ⭐ rating
+                  // ⭐ التقييم
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.amber),
                       const SizedBox(width: 4),
-                      Text(product.rating.toString()),
+                      Text(widget.product.rating.toString()),
                     ],
                   ),
 
@@ -94,7 +105,7 @@ class ProductDetailsScreen extends StatelessWidget {
 
                   // 💰 السعر
                   Text(
-                    "\$${product.price}",
+                    "\$${widget.product.price}",
                     style: AppTextStyles.heading.copyWith(
                       color: AppColors.primary,
                     ),
@@ -102,7 +113,7 @@ class ProductDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 📝 description (مؤقت)
+                  // 📝 وصف المنتج
                   const Text(
                     "This is a high quality product with amazing features. Perfect for daily use.",
                     style: AppTextStyles.body,
@@ -110,16 +121,72 @@ class ProductDetailsScreen extends StatelessWidget {
 
                   const Spacer(),
 
-                  // 🛒 زرار
-                  CustomButton(
-                    text: "Add To Cart",
-                    onPressed: () {
-                      context.read<CartCubit>().addToCart(product);
+                  // 🛒 زرار احترافي (مش بدائي)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300), // ✨ انيميشن ناعم
+                    width: double.infinity,
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Added to cart")),
-                      );
-                    },
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                        isAdded ? Colors.green : AppColors.primary, // 🔥 يتغير اللون
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+
+                      onPressed: () {
+
+                        // 🔥 1. نضيف المنتج للكارت
+                        context.read<CartCubit>().addToCart(widget.product);
+
+                        // 🔥 2. نغير حالة الزرار فورًا (Optimistic UI)
+                        setState(() {
+                          isAdded = true;
+                        });
+
+                        // 🔥 3. SnackBar احترافي
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(
+                        //     content: const Text("Added to cart"),
+                        //     behavior: SnackBarBehavior.floating, // يطفو مش تحت خالص
+                        //     shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(12),
+                        //     ),
+                        //   ),
+                        // );
+
+                        // 🔥 4. يرجع لحالته بعد ثانيتين (زي Amazon)
+                        Future.delayed(const Duration(seconds: 2), () {
+                          setState(() {
+                            isAdded = false;
+                          });
+                        });
+                      },
+
+                      // 🔥 محتوى الزرار بيتغير
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+
+                          Icon(
+                            isAdded ? Icons.check : Icons.shopping_cart_outlined,
+                            color: Colors.white,
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          Text(
+                            isAdded ? "Added" : "Add to Cart",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -130,5 +197,3 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-

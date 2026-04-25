@@ -20,14 +20,20 @@ class CartScreen extends StatelessWidget {
 
           // 🟡 لو الكارت فاضي
           if (cart.isEmpty) {
-            return const Center(
-              child: Text(
-                "Your cart is empty 🛒", // رسالة للمستخدم
-                style: TextStyle(fontSize: 18),
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // 🟢 يخلي الحجم على قد المحتوى
+                children: const [
+                  Icon(Icons.shopping_cart_outlined, size: 80),
+                  SizedBox(height: 12),
+                  Text(
+                    "Your cart is empty 🛒",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
               ),
             );
           }
-
           // 🔥 لو فيه منتجات
           return ListView.separated(
             padding: const EdgeInsets.all(16), // مسافة حوالين الليست

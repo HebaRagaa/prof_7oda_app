@@ -46,7 +46,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      //كوبي ويز نحافظ على كل الثيم القديم ونعدل حاجة واحدة بس من غير ما نعيد كتابة الثيم كله
+      theme: AppTheme.lightTheme.copyWith(
+        //pageTransitionsTheme شكل التنقل بين الشاشات
+        pageTransitionsTheme: const PageTransitionsTheme(
+          //builders نوع الأنيميشن لكل منصة
+          builders: {
+            //FadeUpwardsPageTransitionsBuilder أنيميشن ناعم لفوق + Fade
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(), // 🍏 زي iPhone
+          },
+        ),
+      ),
 
       // 👇 هنا بقى المهم
       home: BlocProvider(
